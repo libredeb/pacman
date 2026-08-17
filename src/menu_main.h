@@ -20,7 +20,7 @@ class MenuMain : public Menu {
 		enum Entries {BACK, ABOUT, HIGHSCORE, OPTIONS, STARTGAME};
 		Menu *menuoptions;
 		Menu *menuabout;
-		SDL_Surface *appTitle1, *appTitle2, *titlePacman, *version;
+		SDL_Surface *titleLogo, *version;
 		int handleSelection();
 		void drawTitle();
 };

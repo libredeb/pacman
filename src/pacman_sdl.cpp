@@ -20,6 +20,12 @@ int main(int argc, char *argv[]) {
 		          << "  --name=...         Provide the player's name."                       << std::endl
 		          << "  --highscore=...    Define path to highscore file."                   << std::endl
 		          << "  --hs-key=...       Highscore encryption key (hexadecimal)."          << std::endl
+		          << std::endl
+		          << "GamerCard / Wayland tip:"                                               << std::endl
+		          << "  SDL_VIDEODRIVER=wayland pacman_sdl -f"                                << std::endl
+		          << std::endl
+		          << "Gamepad (Arduino Leonardo / GamerCard):"                               << std::endl
+		          << "  D-pad move / navigate, A confirm, B/Back cancel, Start pause."       << std::endl
 		          << std::endl;
 		return EXIT_SUCCESS;
 	}

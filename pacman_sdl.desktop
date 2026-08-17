@@ -1,7 +1,9 @@
 [Desktop Entry]
 Name=Pacman (SDL)
-Comment=Yet another pacman_sdl clone in C/C++ and SDL
-Exec=pacman_sdl
+Comment=Pacman clone for GamerCard / desktop (SDL2)
+Exec=env SDL_VIDEODRIVER=wayland pacman_sdl -f
 Icon=/usr/local/share/pacman_sdl/gfx/pacman_sdl_desktop.png
 Type=Application
 Categories=Game;ArcadeGame;
+Terminal=false
+StartupNotify=false

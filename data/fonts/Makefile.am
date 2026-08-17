@@ -4,7 +4,7 @@
    
 
 datadir_fontsdir =  $(datadir)/pacman_sdl/fonts
-dist_datadir_fonts_DATA = Cheapmot.TTF \
+dist_datadir_fonts_DATA = emulogic.ttf \
 	Makefile \
 	Makefile.am \
 	Makefile.in

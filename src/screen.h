@@ -75,7 +75,8 @@ class Screen {
 
 		int getOffsetX() { return clipRect.x; }
 		int getOffsetY() { return clipRect.y; }
-		int getScalingFactor() { return scalingFactor; }
+		float getScalingFactor() { return scalingFactor; }
+		bool isScaled() const { return scalingFactor > 1.001f || scalingFactor < 0.999f; }
 
 		// transforms x, y coordinates from screen (e.g. by mouse event) to game coordinates,
 		// within the clipping rectangle, also considering its offset and scaling factor.
@@ -96,6 +97,6 @@ class Screen {
 		bool fullscreen;
 		static TTF_Font *smallFont, *font, *largeFont, *veryLargeFont, *hugeFont;
 		void computeClipRect();
-		int scalingFactor;
+		float scalingFactor;
 };
 #endif

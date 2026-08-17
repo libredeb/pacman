@@ -14,15 +14,15 @@ dist_doc_DATA = \
 
 ## Desktop DIR
 desktopdir = $(datadir)/applications
-desktop_in_files = pacman_sdl.desktop.in
-desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
+desktop_DATA = pacman_sdl.desktop
 
 INTLTOOL_FILES = intltool-extract.in \
 	intltool-merge.in \
 	intltool-update.in
 
 EXTRA_DIST = \
-	$(INTLTOOL_FILES)
+	$(INTLTOOL_FILES) \
+	pacman_sdl.desktop
   
 
 DISTCLEANFILES = intltool-extract \

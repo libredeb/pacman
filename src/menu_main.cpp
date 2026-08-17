@@ -19,9 +19,8 @@ MenuMain::MenuMain() {
 		SDL_Surface *icon = Screen::loadImage("gfx/pacman_sdl_desktop.png", 0);
 		SDL_SetWindowIcon(Screen::getInstance()->getWindow(), icon);
 		SDL_FreeSurface(icon);
-		appTitle1 = Screen::getTextSurface(Screen::getHugeFont(), "Pa", Constants::WHITE_COLOR);
-		appTitle2 = Screen::getTextSurface(Screen::getHugeFont(), "man", Constants::WHITE_COLOR);
-		titlePacman = Screen::loadImage("gfx/title_pacman_sdl.png", 0);
+		// Full title banner (replaces "Pa" + face + "man"). Keep under ~600px wide.
+		titleLogo = Screen::loadImage("gfx/full_title_img.png");
 		std::string str_version = "version ";
 		str_version.append(VERSION);
 		version = Screen::getTextSurface(Screen::getSmallFont(), str_version.c_str(), Constants::GRAY_COLOR);
@@ -37,27 +36,18 @@ MenuMain::MenuMain() {
 }
 
 MenuMain::~MenuMain() {
-	SDL_FreeSurface(appTitle1);
-	SDL_FreeSurface(appTitle2);
-	SDL_FreeSurface(titlePacman);
+	SDL_FreeSurface(titleLogo);
 	SDL_FreeSurface(version);
 	delete menuoptions;
 	delete menuabout;
 }
 
 void MenuMain::drawTitle() {
-	SDL_Rect rect;
-	rect.x = 0;
-	rect.y = 0;
-	rect.w = 640;
-	rect.h = 480;
-	rect.x = (short int) (320 - ((appTitle1->w + titlePacman->w + appTitle2->w) >> 1));
-	Screen::getInstance()->draw(appTitle1, rect.x, 30);
-	rect.x = (short int) (rect.x + appTitle1->w + titlePacman->w);
-	Screen::getInstance()->draw(appTitle2, rect.x, 30);
-	rect.x = (short int) (rect.x - titlePacman->w);
-	Screen::getInstance()->draw(titlePacman, rect.x, 40);
-	Screen::getInstance()->draw(version, (short int)(320 - (version->w >> 1)), 140);
+	// Native asset is 560x130 — fits the old Pa+face+man footprint with side margins.
+	const int logoX = 320 - (titleLogo->w >> 1);
+	const int logoY = 24;
+	Screen::getInstance()->draw(titleLogo, logoX, logoY);
+	Screen::getInstance()->draw(version, 320 - (version->w >> 1), logoY + titleLogo->h + 6);
 }
 
 int MenuMain::show() {

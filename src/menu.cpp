@@ -87,24 +87,45 @@ int Menu::eventloop() {
 				return 2;
 			break;
 		case SDL_CONTROLLERBUTTONDOWN:
-			if (event.cbutton.button == SDL_CONTROLLER_BUTTON_DPAD_UP)
-				menuItemUp();
-			else if(event.cbutton.button == SDL_CONTROLLER_BUTTON_DPAD_DOWN)
-				menuItemDown();
-			else if(event.cbutton.button == SDL_CONTROLLER_BUTTON_DPAD_RIGHT || event.cbutton.button == SDL_CONTROLLER_BUTTON_START)
-				return handleSelection();
-			else if(event.cbutton.button == SDL_CONTROLLER_BUTTON_BACK)
-				return 2;
-			break;
 		case SDL_CONTROLLERAXISMOTION:
-			if((event.caxis.axis == SDL_CONTROLLER_AXIS_LEFTY) && (event.caxis.value < -Constants::AXIS_ACTIVE_ZONE))
-				menuItemUp();
-			else if((event.caxis.axis == SDL_CONTROLLER_AXIS_LEFTY) && (event.caxis.value > Constants::AXIS_ACTIVE_ZONE))
-				menuItemDown();
-			else if((event.caxis.axis == SDL_CONTROLLER_AXIS_LEFTX) && (event.caxis.value > Constants::AXIS_ACTIVE_ZONE))
-				return handleSelection();
-			else if((event.caxis.axis == SDL_CONTROLLER_AXIS_LEFTX) && (event.caxis.value < -Constants::AXIS_ACTIVE_ZONE))
-				return 2;
+			{
+				static Uint32 lastMenuNavMs = 0;
+				static int lastAxisY = 0;
+				const Uint32 now = SDL_GetTicks();
+
+				if (event.type == SDL_CONTROLLERBUTTONDOWN) {
+					if (event.cbutton.button == SDL_CONTROLLER_BUTTON_DPAD_UP) {
+						if (now - lastMenuNavMs > 100) {
+							menuItemUp();
+							lastMenuNavMs = now;
+						}
+					} else if (event.cbutton.button == SDL_CONTROLLER_BUTTON_DPAD_DOWN) {
+						if (now - lastMenuNavMs > 100) {
+							menuItemDown();
+							lastMenuNavMs = now;
+						}
+					} else if (event.cbutton.button == SDL_CONTROLLER_BUTTON_A || event.cbutton.button == SDL_CONTROLLER_BUTTON_START)
+						return handleSelection();
+					else if (event.cbutton.button == SDL_CONTROLLER_BUTTON_B || event.cbutton.button == SDL_CONTROLLER_BUTTON_BACK)
+						return 2;
+				} else if (event.caxis.axis == SDL_CONTROLLER_AXIS_LEFTY) {
+					int axisY = 0;
+					if (event.caxis.value < -Constants::AXIS_ACTIVE_ZONE)
+						axisY = -1;
+					else if (event.caxis.value > Constants::AXIS_ACTIVE_ZONE)
+						axisY = 1;
+					if (axisY != lastAxisY) {
+						if (axisY != 0 && (now - lastMenuNavMs) > 100) {
+							if (axisY < 0)
+								menuItemUp();
+							else
+								menuItemDown();
+							lastMenuNavMs = now;
+						}
+						lastAxisY = axisY;
+					}
+				}
+			}
 			break;
 		case SDL_MOUSEMOTION:
 			event_x = Screen::xToClipRect(event.motion.x);

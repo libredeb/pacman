@@ -33,10 +33,11 @@ Sounds::Sounds():
 }
 
 void Sounds::initialize() {
-	int audio_rate = 44100;
+	// Lower rate/buffer size keeps audio CPU light on Raspberry Pi Zero 2W.
+	int audio_rate = 22050;
 	Uint16 audio_format = AUDIO_S16SYS;
 	int audio_channels = 2;
-	int audio_buffers = 2048;
+	int audio_buffers = 1024;
 
 	if (SDL_InitSubSystem(SDL_INIT_AUDIO) != 0) {
 		std::cout << "SDL audio initialization failed (SDL_InitSubSystem): " << SDL_GetError() << std::endl;

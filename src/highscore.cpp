@@ -531,49 +531,84 @@ bool HighscoreList::eventloop(bool nameAlterable, bool *redrawNeeded) {
 			}
 			break;
 		case SDL_CONTROLLERBUTTONDOWN:
-			if (nameAlterable) {
-				if (event.cbutton.button == SDL_CONTROLLER_BUTTON_START) {
-					finishEntry();
-					return false;
-				} else if (event.cbutton.button == SDL_CONTROLLER_BUTTON_DPAD_UP) {
-					entries->at(idxLastInsertedEntry)->rotateLastCharOfPlayerName(false);
-					*redrawNeeded = true;
-				} else if (event.cbutton.button == SDL_CONTROLLER_BUTTON_DPAD_DOWN) {
-					entries->at(idxLastInsertedEntry)->rotateLastCharOfPlayerName(true);
-					*redrawNeeded = true;
-				} else if (event.cbutton.button == SDL_CONTROLLER_BUTTON_DPAD_RIGHT) {
-					entries->at(idxLastInsertedEntry)->addCharToPlayerName('A');
-					*redrawNeeded = true;
-				} else if (event.cbutton.button == SDL_CONTROLLER_BUTTON_DPAD_LEFT) {
-					entries->at(idxLastInsertedEntry)->removeLastCharFromPlayerName();
-					*redrawNeeded = true;
-				}
-			} else {
-				if (event.cbutton.button == SDL_CONTROLLER_BUTTON_START || event.cbutton.button == SDL_CONTROLLER_BUTTON_BACK || 
-					event.cbutton.button == SDL_CONTROLLER_BUTTON_DPAD_RIGHT || event.cbutton.button == SDL_CONTROLLER_BUTTON_DPAD_LEFT) {
-					return false;
-				}
-			}
-			break;
 		case SDL_CONTROLLERAXISMOTION:
-			if (nameAlterable) {
-				if ((event.caxis.axis == SDL_CONTROLLER_AXIS_LEFTY) && (event.caxis.value < -Constants::AXIS_ACTIVE_ZONE)) {
-					entries->at(idxLastInsertedEntry)->rotateLastCharOfPlayerName(false);
-					*redrawNeeded = true;
-				} else if ((event.caxis.axis == SDL_CONTROLLER_AXIS_LEFTY) && (event.caxis.value > Constants::AXIS_ACTIVE_ZONE)) {
-					entries->at(idxLastInsertedEntry)->rotateLastCharOfPlayerName(true);
-					*redrawNeeded = true;
-				} else if ((event.caxis.axis == SDL_CONTROLLER_AXIS_LEFTX) && (event.caxis.value > Constants::AXIS_ACTIVE_ZONE)) {
-					entries->at(idxLastInsertedEntry)->addCharToPlayerName('A');
-					*redrawNeeded = true;
-				} else if ((event.caxis.axis == SDL_CONTROLLER_AXIS_LEFTX) && (event.caxis.value < -Constants::AXIS_ACTIVE_ZONE)) {
-					entries->at(idxLastInsertedEntry)->removeLastCharFromPlayerName();
-					*redrawNeeded = true;
-				}
-			} else {
-				if (((event.caxis.axis == SDL_CONTROLLER_AXIS_LEFTX) && (event.caxis.value > Constants::AXIS_ACTIVE_ZONE)) || 
-					((event.caxis.axis == SDL_CONTROLLER_AXIS_LEFTX) && (event.caxis.value < -Constants::AXIS_ACTIVE_ZONE))) {
-					return false;
+			{
+				static Uint32 lastHsNavMs = 0;
+				static int lastAxisX = 0;
+				static int lastAxisY = 0;
+				const Uint32 now = SDL_GetTicks();
+
+				if (event.type == SDL_CONTROLLERBUTTONDOWN) {
+					if (nameAlterable) {
+						if (event.cbutton.button == SDL_CONTROLLER_BUTTON_A || event.cbutton.button == SDL_CONTROLLER_BUTTON_START) {
+							finishEntry();
+							return false;
+						} else if (event.cbutton.button == SDL_CONTROLLER_BUTTON_B || event.cbutton.button == SDL_CONTROLLER_BUTTON_BACK) {
+							return false;
+						} else if (event.cbutton.button == SDL_CONTROLLER_BUTTON_DPAD_UP) {
+							if (now - lastHsNavMs > 100) {
+								entries->at(idxLastInsertedEntry)->rotateLastCharOfPlayerName(false);
+								*redrawNeeded = true;
+								lastHsNavMs = now;
+							}
+						} else if (event.cbutton.button == SDL_CONTROLLER_BUTTON_DPAD_DOWN) {
+							if (now - lastHsNavMs > 100) {
+								entries->at(idxLastInsertedEntry)->rotateLastCharOfPlayerName(true);
+								*redrawNeeded = true;
+								lastHsNavMs = now;
+							}
+						} else if (event.cbutton.button == SDL_CONTROLLER_BUTTON_DPAD_RIGHT) {
+							if (now - lastHsNavMs > 100) {
+								entries->at(idxLastInsertedEntry)->addCharToPlayerName('A');
+								*redrawNeeded = true;
+								lastHsNavMs = now;
+							}
+						} else if (event.cbutton.button == SDL_CONTROLLER_BUTTON_DPAD_LEFT) {
+							if (now - lastHsNavMs > 100) {
+								entries->at(idxLastInsertedEntry)->removeLastCharFromPlayerName();
+								*redrawNeeded = true;
+								lastHsNavMs = now;
+							}
+						}
+					} else {
+						if (event.cbutton.button == SDL_CONTROLLER_BUTTON_A || event.cbutton.button == SDL_CONTROLLER_BUTTON_B ||
+							event.cbutton.button == SDL_CONTROLLER_BUTTON_START || event.cbutton.button == SDL_CONTROLLER_BUTTON_BACK) {
+							return false;
+						}
+					}
+				} else if (nameAlterable) {
+					if (event.caxis.axis == SDL_CONTROLLER_AXIS_LEFTY) {
+						int axisY = 0;
+						if (event.caxis.value < -Constants::AXIS_ACTIVE_ZONE)
+							axisY = -1;
+						else if (event.caxis.value > Constants::AXIS_ACTIVE_ZONE)
+							axisY = 1;
+						if (axisY != lastAxisY) {
+							if (axisY != 0 && (now - lastHsNavMs) > 100) {
+								entries->at(idxLastInsertedEntry)->rotateLastCharOfPlayerName(axisY > 0);
+								*redrawNeeded = true;
+								lastHsNavMs = now;
+							}
+							lastAxisY = axisY;
+						}
+					} else if (event.caxis.axis == SDL_CONTROLLER_AXIS_LEFTX) {
+						int axisX = 0;
+						if (event.caxis.value < -Constants::AXIS_ACTIVE_ZONE)
+							axisX = -1;
+						else if (event.caxis.value > Constants::AXIS_ACTIVE_ZONE)
+							axisX = 1;
+						if (axisX != lastAxisX) {
+							if (axisX != 0 && (now - lastHsNavMs) > 100) {
+								if (axisX > 0)
+									entries->at(idxLastInsertedEntry)->addCharToPlayerName('A');
+								else
+									entries->at(idxLastInsertedEntry)->removeLastCharFromPlayerName();
+								*redrawNeeded = true;
+								lastHsNavMs = now;
+							}
+							lastAxisX = axisX;
+						}
+					}
 				}
 			}
 			break;

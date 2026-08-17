@@ -137,8 +137,13 @@ bool Game::eventloop() {
 				return false;
 			if(!Pacman::getInstance()->is_dying() && !pause) 
 				preselectDirection(event.cbutton.button);
-			if(event.cbutton.button == SDL_CONTROLLER_BUTTON_BACK) 
+			if(event.cbutton.button == SDL_CONTROLLER_BUTTON_START) {
+				if(!Pacman::getInstance()->is_dying()) {
+					togglePause();
+				}
+			} else if(event.cbutton.button == SDL_CONTROLLER_BUTTON_B || event.cbutton.button == SDL_CONTROLLER_BUTTON_BACK) {
 				return false;
+			}
 			break;
 		case SDL_CONTROLLERAXISMOTION:
 			if(gameOver)
