@@ -3,9 +3,9 @@
 MenuAbout::MenuAbout():
 	Menu("About")
 {
-		idea = Screen::getTextSurface(Screen::getLargeFont(), "idea: Toro Iwatani - Namco", Constants::GRAY_COLOR);
-		coding = Screen::getTextSurface(Screen::getLargeFont(), "coding: Martin Prussak", Constants::GRAY_COLOR);
-		coding2 = Screen::getTextSurface(Screen::getLargeFont(), "         Daniel Wuerfel", Constants::GRAY_COLOR);
+		idea = Screen::getTextSurface(Screen::getSmallFont(), "idea: Toro Iwatani - Namco", Constants::GRAY_COLOR);
+		coding = Screen::getTextSurface(Screen::getSmallFont(), "coding: Martin Prussak", Constants::GRAY_COLOR);
+		coding2 = Screen::getTextSurface(Screen::getSmallFont(), "         Daniel Wuerfel", Constants::GRAY_COLOR);
 		addMenuItem("back");
 }
 MenuAbout::~MenuAbout() {

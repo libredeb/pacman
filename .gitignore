@@ -12,3 +12,5 @@ src/pacman_sdl
 src/.deps
 config.log
 config.status
+
+**/*.DS_Store

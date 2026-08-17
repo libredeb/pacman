@@ -2,7 +2,7 @@
 
 Menu::Menu(const char* title):
 	selection(0) {
-	menuTitle = title ? Screen::getTextSurface(Screen::getVeryLargeFont(), title, Constants::WHITE_COLOR) : NULL;
+	menuTitle = title ? Screen::getTextSurface(Screen::getLargeFont(), title, Constants::WHITE_COLOR) : NULL;
 }
 Menu::~Menu() {
 	SDL_FreeSurface(menuTitle);
