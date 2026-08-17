@@ -209,6 +209,9 @@ void Game::sleep(int ms) {
 }
 
 void Game::start() {
+	Screen::getInstance()->setContentRect(
+		Constants::GAME_VIEW_X, Constants::GAME_VIEW_Y,
+		Constants::GAME_VIEW_W, Constants::GAME_VIEW_H);
 	init();
 	Sounds::getInstance()->playIntro();
 	// game loop
@@ -233,6 +236,7 @@ void Game::start() {
 		updateDelayTime();
 	}
 	stop(true);
+	Screen::getInstance()->resetContentRect();
 }
 
 void Game::checkGameOver() {

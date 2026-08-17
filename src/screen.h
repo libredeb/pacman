@@ -78,6 +78,11 @@ class Screen {
 		float getScalingFactor() { return scalingFactor; }
 		bool isScaled() const { return scalingFactor > 1.001f || scalingFactor < 0.999f; }
 
+		// Restrict which part of the logical 640x480 canvas is scaled to the display.
+		// Used in-game to crop unused left margin and enlarge the maze on square screens.
+		void setContentRect(int x, int y, int w, int h);
+		void resetContentRect();
+
 		// transforms x, y coordinates from screen (e.g. by mouse event) to game coordinates,
 		// within the clipping rectangle, also considering its offset and scaling factor.
 		static int xToClipRect(int x);
@@ -98,5 +103,7 @@ class Screen {
 		static TTF_Font *smallFont, *font, *largeFont, *veryLargeFont, *hugeFont;
 		void computeClipRect();
 		float scalingFactor;
+		int contentOffsetX, contentOffsetY, contentWidth, contentHeight;
+		int visibleX, visibleY, visibleW, visibleH;
 };
 #endif

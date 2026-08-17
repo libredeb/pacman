@@ -58,9 +58,8 @@ pacman_sdl_SOURCES =  \
 	highscore.h \
 	highscore.cpp
 
-pacman_sdl_CXXFLAGS = -ansi \
+pacman_sdl_CXXFLAGS = -std=c++11 \
 	-fno-default-inline \
-	-ffor-scope \
 	-Wall \
 	-W \
 	-Wpointer-arith \

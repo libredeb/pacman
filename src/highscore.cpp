@@ -216,21 +216,21 @@ void HighscoreList::print() {
 
 void HighscoreList::draw(bool nameAlterable, bool highlightLast) {
 	if (!sfTitle)
-		sfTitle = Screen::getTextSurface(Screen::getVeryLargeFont(), "Highscore List", Constants::WHITE_COLOR);
+		sfTitle = Screen::getTextSurface(Screen::getLargeFont(), "Highscore List", Constants::WHITE_COLOR);
 	if (!sfPosTitle)
-		sfPosTitle = Screen::getTextSurface(Screen::getFont(), "Pos.", Constants::WHITE_COLOR);
+		sfPosTitle = Screen::getTextSurface(Screen::getSmallFont(), "Pos.", Constants::WHITE_COLOR);
 	if (!sfNameTitle)
-		sfNameTitle = Screen::getTextSurface(Screen::getFont(), "Name", Constants::WHITE_COLOR);
+		sfNameTitle = Screen::getTextSurface(Screen::getSmallFont(), "Name", Constants::WHITE_COLOR);
 	if (!sfScoreTitle)
-		sfScoreTitle = Screen::getTextSurface(Screen::getFont(), "Score", Constants::WHITE_COLOR);
+		sfScoreTitle = Screen::getTextSurface(Screen::getSmallFont(), "Score", Constants::WHITE_COLOR);
 	if (!sfLevelTitle)
-		sfLevelTitle = Screen::getTextSurface(Screen::getFont(), "Lev.", Constants::WHITE_COLOR);
+		sfLevelTitle = Screen::getTextSurface(Screen::getSmallFont(), "Lev.", Constants::WHITE_COLOR);
 	if (!sfBackItem)
-		sfBackItem = Screen::getTextSurface(Screen::getLargeFont(), "back to menu", Constants::WHITE_COLOR);
+		sfBackItem = Screen::getTextSurface(Screen::getFont(), "back to menu", Constants::WHITE_COLOR);
 	if (nameAlterable && !sfCaret && idxLastInsertedEntry >= 0)
-		sfCaret = Screen::getTextSurface(Screen::getVeryLargeFont(), "-", Constants::YELLOW_COLOR);
+		sfCaret = Screen::getTextSurface(Screen::getLargeFont(), "-", Constants::YELLOW_COLOR);
 	if (readonly && !sfReadonly)
-		sfReadonly = Screen::getTextSurface(Screen::getFont(), "Highscore file could not be read!", Constants::RED_COLOR);
+		sfReadonly = Screen::getTextSurface(Screen::getSmallFont(), "Highscore file could not be read!", Constants::RED_COLOR);
 	ostringstream ostr_highscore;
 	if (idxLastInsertedEntry < 0 || !highlightLast) {
 		idxHighlightedEntry = -1;
@@ -240,31 +240,31 @@ void HighscoreList::draw(bool nameAlterable, bool highlightLast) {
 			if (sfCurrentPos)
 				SDL_FreeSurface(sfCurrentPos);
 			ostr_highscore << idxHighlightedEntry+1 << ".";
-			sfCurrentPos = Screen::getTextSurface(Screen::getFont(), ostr_highscore.str().c_str(), Constants::YELLOW_COLOR);
+			sfCurrentPos = Screen::getTextSurface(Screen::getSmallFont(), ostr_highscore.str().c_str(), Constants::YELLOW_COLOR);
 			if (sfCurrentScore)
 				SDL_FreeSurface(sfCurrentScore);
 			ostr_highscore.str("");
 			ostr_highscore << entries->at(idxHighlightedEntry)->getScore();
-			sfCurrentScore = Screen::getTextSurface(Screen::getFont(), ostr_highscore.str().c_str(), Constants::YELLOW_COLOR);
+			sfCurrentScore = Screen::getTextSurface(Screen::getSmallFont(), ostr_highscore.str().c_str(), Constants::YELLOW_COLOR);
 			if (sfCurrentLevel)
 				SDL_FreeSurface(sfCurrentLevel);
 			ostr_highscore.str("");
 			ostr_highscore << entries->at(idxHighlightedEntry)->getLevel();
-			sfCurrentLevel = Screen::getTextSurface(Screen::getFont(), ostr_highscore.str().c_str(), Constants::YELLOW_COLOR);
+			sfCurrentLevel = Screen::getTextSurface(Screen::getSmallFont(), ostr_highscore.str().c_str(), Constants::YELLOW_COLOR);
 		}
 		if (sfCurrentName)
 			SDL_FreeSurface(sfCurrentName);
 		if (entries->at(idxHighlightedEntry)->getPlayerNameLength() == 0) {
 			sfCurrentName = NULL;
 		} else {
-			sfCurrentName = Screen::getTextSurface(Screen::getFont(), entries->at(idxHighlightedEntry)->getPlayerName(), Constants::YELLOW_COLOR);
+			sfCurrentName = Screen::getTextSurface(Screen::getSmallFont(), entries->at(idxHighlightedEntry)->getPlayerName(), Constants::YELLOW_COLOR);
 		}
 		if (sfPlayerNames[idxHighlightedEntry])
 			SDL_FreeSurface(sfPlayerNames[idxHighlightedEntry]);
 		if (entries->at(idxHighlightedEntry)->getPlayerNameLength() == 0) {
 			sfPlayerNames[idxHighlightedEntry] = NULL;
 		} else {
-			sfPlayerNames[idxHighlightedEntry] = Screen::getTextSurface(Screen::getFont(), entries->at(idxHighlightedEntry)->getPlayerName(), Constants::GRAY_COLOR);
+			sfPlayerNames[idxHighlightedEntry] = Screen::getTextSurface(Screen::getSmallFont(), entries->at(idxHighlightedEntry)->getPlayerName(), Constants::GRAY_COLOR);
 		}
 	}
 	int maxWidthPosition = sfPosTitle->w;
@@ -276,20 +276,20 @@ void HighscoreList::draw(bool nameAlterable, bool highlightLast) {
 		if (!sfPositions[i]) {
 			ostr_highscore.str("");
 			ostr_highscore << i+1 << ".";
-			sfPositions[i] = Screen::getTextSurface(Screen::getFont(), ostr_highscore.str().c_str(), Constants::GRAY_COLOR);
+			sfPositions[i] = Screen::getTextSurface(Screen::getSmallFont(), ostr_highscore.str().c_str(), Constants::GRAY_COLOR);
 		}
 		if (!sfPlayerNames[i] && (*it)->getPlayerNameLength()) {
-			sfPlayerNames[i] = Screen::getTextSurface(Screen::getFont(), (*it)->getPlayerName(), Constants::GRAY_COLOR);
+			sfPlayerNames[i] = Screen::getTextSurface(Screen::getSmallFont(), (*it)->getPlayerName(), Constants::GRAY_COLOR);
 		}
 		if (!sfScores[i]) {
 			ostr_highscore.str("");
 			ostr_highscore << (*it)->getScore();
-			sfScores[i] = Screen::getTextSurface(Screen::getFont(), ostr_highscore.str().c_str(), Constants::GRAY_COLOR);
+			sfScores[i] = Screen::getTextSurface(Screen::getSmallFont(), ostr_highscore.str().c_str(), Constants::GRAY_COLOR);
 		}
 		if (!sfLevels[i]) {
 			ostr_highscore.str("");
 			ostr_highscore << (*it)->getLevel();
-			sfLevels[i] = Screen::getTextSurface(Screen::getFont(), ostr_highscore.str().c_str(), Constants::GRAY_COLOR);
+			sfLevels[i] = Screen::getTextSurface(Screen::getSmallFont(), ostr_highscore.str().c_str(), Constants::GRAY_COLOR);
 		}
 		if (sfPositions[i]->w > maxWidthPosition)
 			maxWidthPosition = sfPositions[i]->w;
@@ -639,6 +639,7 @@ bool HighscoreList::eventloop(bool nameAlterable, bool *redrawNeeded) {
 void HighscoreList::show(bool nameAlterable, bool highlightLast) {
 	if (nameAlterable && idxLastInsertedEntry<0)
 		return;  // not a new highscore, so do not allow the player to enter a name
+	Screen::getInstance()->resetContentRect();
 	bool redrawNeeded, first = true;
 	while (eventloop(idxLastInsertedEntry>=0 ? nameAlterable : false, &redrawNeeded)) {
 		if (redrawNeeded || first) {

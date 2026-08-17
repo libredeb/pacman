@@ -70,10 +70,16 @@ class Constants {
 		static const int LEVEL_NUMBER_Y               = 190;
 		static const int WINDOW_WIDTH                 = 640;   // screen settings
 		static const int WINDOW_HEIGHT                = 480;
+		// In-game viewport crops empty left padding in hintergrund2.png so the
+		// maze + HUD fill more of a square display (e.g. GamerCard 720x720).
+		static const int GAME_VIEW_X                  = 100;
+		static const int GAME_VIEW_Y                  = 0;
+		static const int GAME_VIEW_W                  = 540;
+		static const int GAME_VIEW_H                  = 480;
 		static const int BITS_PER_PIXEL               = 24;
 		static const int MAX_UPDATE_RECTS             = 200;
 		static const uint8_t HIGHSCORE_LIST_MAX_SIZE  = 10;    // maximum number of entries in highscore list
-		static const int HIGHSCORE_COLUMN_SPACING     = 20;    // space between the columns of the highscore table
+		static const int HIGHSCORE_COLUMN_SPACING     = 12;    // space between the columns of the highscore table
 		static const uint16_t AXIS_ACTIVE_ZONE		  = 8000;  // axis value to interpret as action
 #ifdef _WIN32
 		static const char FILE_SEPARATOR              = '\\';

@@ -56,6 +56,8 @@ make
 sudo make install
 ```
 
+`src/Makefile.am` already builds with `-std=c++11` (no `-ffor-scope` / `-ansi`). If you regenerate Makefiles after pulling, a plain `./configure` is enough.
+
 ### Launch from the Labwc launcher
 
 ```

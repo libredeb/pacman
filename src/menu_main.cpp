@@ -51,6 +51,7 @@ void MenuMain::drawTitle() {
 }
 
 int MenuMain::show() {
+	Screen::getInstance()->resetContentRect();
 	GameController::getInstance()->searchAndOpen();
 	draw();
 	int event;

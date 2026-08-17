@@ -8,6 +8,15 @@ TTF_Font *Screen::hugeFont      = NULL;
 
 Screen *Screen::instance = NULL;
 
+namespace {
+	inline int scaleToScreen(int value, float factor) {
+		return (int)((float)value * factor);
+	}
+	inline int scaleToScreen(int value, float factor, int offset) {
+		return (int)((float)value * factor + (float)offset);
+	}
+}
+
 Screen *Screen::getInstance() {
 	if (!instance) {
 		instance = new Screen();
@@ -46,7 +55,15 @@ Screen::Screen():
 	sdlInitErrorOccured(false),
 	fullscreen(CommandLineOptions::exists("f","fullscreen")),
 	rect_num(0),
-	scalingFactor(1.0f)
+	scalingFactor(1.0f),
+	contentOffsetX(0),
+	contentOffsetY(0),
+	contentWidth(Constants::WINDOW_WIDTH),
+	contentHeight(Constants::WINDOW_HEIGHT),
+	visibleX(0),
+	visibleY(0),
+	visibleW(Constants::WINDOW_WIDTH),
+	visibleH(Constants::WINDOW_HEIGHT)
 {
 	// Prefer nearest-neighbor scaling: cheaper on Pi Zero 2W and keeps pixel-art crisp.
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
@@ -103,10 +120,10 @@ void Screen::AddUpdateRects(int x, int y, int w, int h) {
 		h = clipRect.h - y;
 	if (w <= 0 || h <= 0)
 		return;
-	rects[rect_num].x = (short int)(x * scalingFactor + clipRect.x);
-	rects[rect_num].y = (short int)(y * scalingFactor + clipRect.y);
-	rects[rect_num].w = (short int)(w * scalingFactor);
-	rects[rect_num].h = (short int)(h * scalingFactor);
+	rects[rect_num].x = (short int)scaleToScreen(x, scalingFactor, clipRect.x);
+	rects[rect_num].y = (short int)scaleToScreen(y, scalingFactor, clipRect.y);
+	rects[rect_num].w = (short int)scaleToScreen(w, scalingFactor);
+	rects[rect_num].h = (short int)scaleToScreen(h, scalingFactor);
 	rect_num++;
 }
 
@@ -129,10 +146,10 @@ void Screen::Refresh() {
 
 void Screen::draw_dynamic_content(SDL_Surface *surface, int x, int y) {
 	SDL_Rect dest;
-	dest.x = (short int)(x * scalingFactor + clipRect.x);
-	dest.y = (short int)(y * scalingFactor + clipRect.y);
-	dest.w = (short int)(surface->w * scalingFactor);
-	dest.h = (short int)(surface->h * scalingFactor);
+	dest.x = (short int)scaleToScreen(x, scalingFactor, clipRect.x);
+	dest.y = (short int)scaleToScreen(y, scalingFactor, clipRect.y);
+	dest.w = (short int)scaleToScreen(surface->w, scalingFactor);
+	dest.h = (short int)scaleToScreen(surface->h, scalingFactor);
 	if (isScaled()) {
 		SDL_BlitScaled(surface, NULL, screen_surface, &dest);
 	} else {
@@ -146,10 +163,10 @@ void Screen::draw(SDL_Surface* graphic, int offset_x, int offset_y) {
         SDL_BlitSurface(graphic, NULL, screen_surface, NULL);
     } else {
         SDL_Rect position;
-        position.x = (short int)(offset_x * scalingFactor + clipRect.x);
-        position.y = (short int)(offset_y * scalingFactor + clipRect.y);
-		position.w = (short int)(graphic->w * scalingFactor);
-		position.h = (short int)(graphic->h * scalingFactor);
+        position.x = (short int)scaleToScreen(offset_x, scalingFactor, clipRect.x);
+        position.y = (short int)scaleToScreen(offset_y, scalingFactor, clipRect.y);
+		position.w = (short int)scaleToScreen(graphic->w, scalingFactor);
+		position.h = (short int)scaleToScreen(graphic->h, scalingFactor);
 		if (isScaled()) {
 			SDL_BlitScaled(graphic, NULL, screen_surface, &position);
 		} else {
@@ -246,33 +263,31 @@ void Screen::clear() {
 
 void Screen::clearOutsideClipRect() {
 	SDL_Rect rect;
-	const int scaledW = (int)(clipRect.w * scalingFactor);
-	const int scaledH = (int)(clipRect.h * scalingFactor);
-	if (clipRect.x > 0) {
+	if (visibleX > 0) {
 		rect.x = 0;
 		rect.y = 0;
-		rect.w = clipRect.x;
+		rect.w = visibleX;
 		rect.h = screen_surface->h;
 		SDL_FillRect(screen_surface, &rect, SDL_MapRGB(screen_surface->format, 0, 0, 0));
 	}
-	if (clipRect.x + scaledW < screen_surface->w) {
-		rect.x = clipRect.x + scaledW;
+	if (visibleX + visibleW < screen_surface->w) {
+		rect.x = visibleX + visibleW;
 		rect.y = 0;
 		rect.w = screen_surface->w - rect.x;
 		rect.h = screen_surface->h;
 		SDL_FillRect(screen_surface, &rect, SDL_MapRGB(screen_surface->format, 0, 0, 0));
 	}
-	if (clipRect.y > 0) {
-		rect.x = clipRect.x;
+	if (visibleY > 0) {
+		rect.x = visibleX;
 		rect.y = 0;
-		rect.w = scaledW;
-		rect.h = clipRect.y;
+		rect.w = visibleW;
+		rect.h = visibleY;
 		SDL_FillRect(screen_surface, &rect, SDL_MapRGB(screen_surface->format, 0, 0, 0));
 	}
-	if (clipRect.y + scaledH < screen_surface->h) {
-		rect.x = clipRect.x;
-		rect.y = clipRect.y + scaledH;
-		rect.w = scaledW;
+	if (visibleY + visibleH < screen_surface->h) {
+		rect.x = visibleX;
+		rect.y = visibleY + visibleH;
+		rect.w = visibleW;
 		rect.h = screen_surface->h - rect.y;
 		SDL_FillRect(screen_surface, &rect, SDL_MapRGB(screen_surface->format, 0, 0, 0));
 	}
@@ -283,10 +298,10 @@ void Screen::fillRect(SDL_Rect *rect, Uint8 r, Uint8 g, Uint8 b) {
 		SDL_FillRect(screen_surface, rect, SDL_MapRGB(screen_surface->format, r, g, b));
 	} else {
 		SDL_Rect rect_moved;
-		rect_moved.x = (int)(rect->x * scalingFactor + clipRect.x);
-		rect_moved.y = (int)(rect->y * scalingFactor + clipRect.y);
-		rect_moved.w = (int)(rect->w * scalingFactor);
-		rect_moved.h = (int)(rect->h * scalingFactor);
+		rect_moved.x = scaleToScreen(rect->x, scalingFactor, clipRect.x);
+		rect_moved.y = scaleToScreen(rect->y, scalingFactor, clipRect.y);
+		rect_moved.w = scaleToScreen(rect->w, scalingFactor);
+		rect_moved.h = scaleToScreen(rect->h, scalingFactor);
 		SDL_FillRect(screen_surface, &rect_moved, SDL_MapRGB(screen_surface->format, r, g, b));
 	}
 }
@@ -317,6 +332,21 @@ TTF_Font *Screen::getHugeFont() {
 	return hugeFont;
 }
 
+void Screen::setContentRect(int x, int y, int w, int h) {
+	contentOffsetX = x;
+	contentOffsetY = y;
+	contentWidth = w > 0 ? w : Constants::WINDOW_WIDTH;
+	contentHeight = h > 0 ? h : Constants::WINDOW_HEIGHT;
+	computeClipRect();
+	clearOutsideClipRect();
+	addTotalUpdateRect();
+	Refresh();
+}
+
+void Screen::resetContentRect() {
+	setContentRect(0, 0, Constants::WINDOW_WIDTH, Constants::WINDOW_HEIGHT);
+}
+
 void Screen::computeClipRect() {
 	bool scaling_allowed = !CommandLineOptions::exists("","noscaling");
 	bool centering_allowed = !CommandLineOptions::exists("","nocentering");
@@ -325,33 +355,36 @@ void Screen::computeClipRect() {
 	scalingFactor = 1.0f;
 
 	if (scaling_allowed) {
-		const float scalingX = (float)screen_surface->w / (float)clipRect.w;
-		const float scalingY = (float)screen_surface->h / (float)clipRect.h;
+		const float scalingX = (float)screen_surface->w / (float)contentWidth;
+		const float scalingY = (float)screen_surface->h / (float)contentHeight;
 		scalingFactor = scalingX < scalingY ? scalingX : scalingY;
 		if (scalingFactor <= 0.0f) {
 			scalingFactor = 1.0f;
 		}
 	}
 
-	const int scaledW = (int)(clipRect.w * scalingFactor);
-	const int scaledH = (int)(clipRect.h * scalingFactor);
+	visibleW = scaleToScreen(contentWidth, scalingFactor);
+	visibleH = scaleToScreen(contentHeight, scalingFactor);
 	if (centering_allowed) {
-		clipRect.x = (screen_surface->w - scaledW) / 2;
-		clipRect.y = (screen_surface->h - scaledH) / 2;
-		if (clipRect.x < 0)
-			clipRect.x = 0;
-		if (clipRect.y < 0)
-			clipRect.y = 0;
+		visibleX = (screen_surface->w - visibleW) / 2;
+		visibleY = (screen_surface->h - visibleH) / 2;
+		if (visibleX < 0)
+			visibleX = 0;
+		if (visibleY < 0)
+			visibleY = 0;
 	} else {
-		clipRect.x = 0;
-		clipRect.y = 0;
+		visibleX = 0;
+		visibleY = 0;
 	}
+	// Map logical (0,0) so that contentOffset lands at visibleX/visibleY.
+	clipRect.x = visibleX - scaleToScreen(contentOffsetX, scalingFactor);
+	clipRect.y = visibleY - scaleToScreen(contentOffsetY, scalingFactor);
 }
 
 int Screen::xToClipRect(int x) {
-	return (int)((x - Screen::getInstance()->getOffsetX()) / Screen::getInstance()->getScalingFactor());
+	return (int)((float)(x - Screen::getInstance()->getOffsetX()) / Screen::getInstance()->getScalingFactor());
 }
 
 int Screen::yToClipRect(int y) {
-	return (int)((y - Screen::getInstance()->getOffsetY()) / Screen::getInstance()->getScalingFactor());
+	return (int)((float)(y - Screen::getInstance()->getOffsetY()) / Screen::getInstance()->getScalingFactor());
 }
